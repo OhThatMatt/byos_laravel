@@ -50,21 +50,18 @@ RUN mkdir -p storage/framework/views \
     && chmod -R 775 storage
 
 # Create entrypoint script properly
-COPY - <<'EOF' /docker-entrypoint.sh
-#!/bin/sh
-set -e
-
-echo "Setting correct permissions..."
-chmod -R 777 /var/www/html/database
-chown -R www-data:www-data /var/www/html/database
-chmod -R 775 /var/www/html/storage
-chown -R www-data:www-data /var/www/html/storage
-
-echo "Starting supervisord..."
-exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf
-EOF
-
-RUN chmod +x /docker-entrypoint.sh
+RUN echo '#!/bin/sh' > /docker-entrypoint.sh && \
+    echo 'set -e' >> /docker-entrypoint.sh && \
+    echo '' >> /docker-entrypoint.sh && \
+    echo 'echo "Setting correct permissions..."' >> /docker-entrypoint.sh && \
+    echo 'chmod -R 777 /var/www/html/database' >> /docker-entrypoint.sh && \
+    echo 'chown -R www-data:www-data /var/www/html/database' >> /docker-entrypoint.sh && \
+    echo 'chmod -R 775 /var/www/html/storage' >> /docker-entrypoint.sh && \
+    echo 'chown -R www-data:www-data /var/www/html/storage' >> /docker-entrypoint.sh && \
+    echo '' >> /docker-entrypoint.sh && \
+    echo 'echo "Starting supervisord..."' >> /docker-entrypoint.sh && \
+    echo 'exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf' >> /docker-entrypoint.sh && \
+    chmod +x /docker-entrypoint.sh
 
 # Expose port 80
 EXPOSE 80
