@@ -30,6 +30,10 @@ COPY --chown=www-data:www-data ./.env.example ./.env
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 RUN npm ci && npm run build
 
+# Generate application key and run migrations
+RUN php artisan key:generate --force
+RUN php artisan migrate --force
+
 # Ensure storage directories exist and have proper permissions
 RUN mkdir -p storage/framework/views \
     && mkdir -p storage/framework/cache/data \
