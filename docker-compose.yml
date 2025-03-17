@@ -13,7 +13,7 @@ services:
             - VIEW_COMPILED_PATH=/var/www/html/storage/framework/views
             - TRMNL_PROXY_REFRESH_MINUTES=15
         volumes:
-            - ./database/database.sqlite:/var/www/html/database/database.sqlite
+            - ./database:/var/www/html/database
             - ./storage/logs:/var/www/html/storage/logs
             - ./storage/app:/var/www/html/storage/app
         restart: unless-stopped

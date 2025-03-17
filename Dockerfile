@@ -49,8 +49,18 @@ RUN mkdir -p storage/framework/views \
     && chown -R www-data:www-data storage \
     && chmod -R 775 storage
 
+# Create entrypoint script
+RUN echo '#!/bin/sh\n\
+chmod -R 777 /var/www/html/database\n\
+chown -R www-data:www-data /var/www/html/database\n\
+chmod -R 775 /var/www/html/storage\n\
+chown -R www-data:www-data /var/www/html/storage\n\
+exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf\n\
+' > /entrypoint.sh \
+    && chmod +x /entrypoint.sh
+
 # Expose port 80
 EXPOSE 80
 
-# Start supervisor
-CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Use entrypoint script
+CMD ["/entrypoint.sh"]
