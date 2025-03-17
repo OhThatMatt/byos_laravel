@@ -49,18 +49,25 @@ RUN mkdir -p storage/framework/views \
     && chown -R www-data:www-data storage \
     && chmod -R 775 storage
 
-# Create entrypoint script
-RUN echo '#!/bin/sh\n\
-chmod -R 777 /var/www/html/database\n\
-chown -R www-data:www-data /var/www/html/database\n\
-chmod -R 775 /var/www/html/storage\n\
-chown -R www-data:www-data /var/www/html/storage\n\
-exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf\n\
-' > /entrypoint.sh \
-    && chmod +x /entrypoint.sh
+# Create entrypoint script properly
+COPY - <<'EOF' /docker-entrypoint.sh
+#!/bin/sh
+set -e
+
+echo "Setting correct permissions..."
+chmod -R 777 /var/www/html/database
+chown -R www-data:www-data /var/www/html/database
+chmod -R 775 /var/www/html/storage
+chown -R www-data:www-data /var/www/html/storage
+
+echo "Starting supervisord..."
+exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf
+EOF
+
+RUN chmod +x /docker-entrypoint.sh
 
 # Expose port 80
 EXPOSE 80
 
 # Use entrypoint script
-CMD ["/entrypoint.sh"]
+CMD ["/docker-entrypoint.sh"]
