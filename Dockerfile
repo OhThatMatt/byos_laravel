@@ -30,6 +30,13 @@ COPY --chown=www-data:www-data ./.env.example ./.env
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 RUN npm ci && npm run build
 
+# Ensure storage directories exist and have proper permissions
+RUN mkdir -p storage/framework/views \
+    && mkdir -p storage/framework/cache/data \
+    && mkdir -p storage/framework/testing \
+    && chown -R www-data:www-data storage \
+    && chmod -R 775 storage
+
 # Expose port 80
 EXPOSE 80
 
