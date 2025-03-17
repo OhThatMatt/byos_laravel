@@ -11,13 +11,17 @@ COPY docker/nginx.conf /etc/nginx/http.d/default.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 
-# Create required directories
+# Create required directories with proper permissions
 RUN mkdir -p /var/log/supervisor \
     && mkdir -p storage/logs \
     && mkdir -p storage/framework/{cache,sessions,views} \
+    && mkdir -p storage/framework/cache/data \
+    && mkdir -p storage/framework/testing \
     && chmod -R 775 storage \
+    && chown -R www-data:www-data storage \
     && mkdir -p bootstrap/cache \
     && chmod -R 775 bootstrap/cache \
+    && chown -R www-data:www-data bootstrap \
     && mkdir -p database \
     && touch database/database.sqlite \
     && chmod -R 777 database
@@ -25,6 +29,10 @@ RUN mkdir -p /var/log/supervisor \
 # Copy application files
 COPY --chown=www-data:www-data . .
 COPY --chown=www-data:www-data ./.env.example ./.env
+
+# Set proper environment variables
+RUN echo "VIEW_COMPILED_PATH=/var/www/html/storage/framework/views" >> .env \
+    && echo "CACHE_DRIVER=file" >> .env
 
 # Install application dependencies
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
